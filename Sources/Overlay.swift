@@ -92,7 +92,8 @@ final class MissionControlOverlay {
         if let bar = MissionControl.readSpacesBar() {
             legend.hide()
             let placements = computePlacements(bar)
-            // Show labels only after two equal reads, so they don't jump during animations.
+            // Show labels only after three equal reads in a row (~140 ms), so they don't
+            // appear at in-between positions while the Spaces bar animates.
             if placements == lastPlacements {
                 stableReads += 1
             } else {
@@ -100,7 +101,7 @@ final class MissionControlOverlay {
                 lastPlacements = placements
                 hidePills()
             }
-            if stableReads == 1 {
+            if stableReads == 2 {
                 apply(placements)
                 debugLog(bar)
             }
@@ -114,6 +115,7 @@ final class MissionControlOverlay {
 
     private func computePlacements(_ bar: [MCDisplay]) -> [Placement] {
         let displays = Spaces.displays()
+        let screens = NSScreen.screens.map(\.frame)
         var result: [Placement] = []
         for mcDisplay in bar {
             let match = displays.first { $0.displayID == mcDisplay.displayID }
@@ -123,9 +125,13 @@ final class MissionControlOverlay {
             for (space, button) in zip(spaces, mcDisplay.buttons) {
                 if space.isFullscreen, !button.title.isEmpty { Spaces.fullscreenTitles[space.id] = button.title }
                 guard let name = NameStore.shared.name(for: space) else { continue }
-                // Cover the "Desktop N" caption at the bottom of the button.
                 let f = button.frame
-                let center = CGPoint(x: f.midX, y: f.minY + 11)
+                // The bar can sit above the screen (hidden or sliding in). Label only what is visible.
+                guard screens.contains(where: { $0.contains(f) }) else { continue }
+                // Thumbnail mode: the frame is the thumbnail only; the "Desktop N" caption is
+                // centered ~13 pt below it. Text-only mode: the frame is the caption itself.
+                let isThumbnail = f.height > 40
+                let center = CGPoint(x: f.midX, y: isThumbnail ? f.minY - 13 : f.midY)
                 result.append(Placement(text: name, center: center, maxWidth: max(f.width + 24, 80)))
             }
         }
@@ -151,8 +157,8 @@ final class MissionControlOverlay {
         legend.show(named.joined(separator: "   ·   "), center: center, maxWidth: screen.frame.width - 80, padding: 18)
     }
 
-    /// `defaults write local.workspacetag debugLog -bool true` writes Spaces bar frames to
-    /// ~/Library/Logs/WorkspaceTag.log each time the labels are placed.
+    /// `defaults write local.spacetag debugLog -bool true` writes Spaces bar frames to
+    /// ~/Library/Logs/SpaceTag.log each time the labels are placed.
     private func debugLog(_ bar: [MCDisplay]) {
         guard UserDefaults.standard.bool(forKey: "debugLog") else { return }
         var lines = ["\(Date()) spaces=\(Spaces.all().count)"]
@@ -160,7 +166,7 @@ final class MissionControlOverlay {
             lines.append("display \(d.displayID): \(d.buttons.count) buttons")
             for b in d.buttons { lines.append("  \(b.title) \(b.frame)") }
         }
-        let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/WorkspaceTag.log")
+        let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/SpaceTag.log")
         let data = (lines.joined(separator: "\n") + "\n").data(using: .utf8)!
         if let h = try? FileHandle(forWritingTo: url) {
             h.seekToEndOfFile(); h.write(data); try? h.close()

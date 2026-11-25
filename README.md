@@ -1,4 +1,4 @@
-# WorkspaceTag
+# SpaceTag
 
 Give each macOS Space (desktop) a name. The name shows:
 
@@ -40,7 +40,7 @@ Leave the name empty to remove it.
                                    └────────────────────────────────────────────┘
 ```
 
-- Names are saved in `UserDefaults` (`local.workspacetag`), keyed by Space UUID.
+- Names are saved in `UserDefaults` (`local.spacetag`), keyed by Space UUID.
   They stay with a Space when you reorder Spaces in Mission Control.
 - Space data comes from private CoreGraphics calls (`CGSCopyManagedDisplaySpaces`,
   `CGSGetActiveSpace`). A future macOS update can break them.
@@ -48,6 +48,6 @@ Leave the name empty to remove it.
 ## Debug
 
 ```sh
-defaults write local.workspacetag debugLog -bool true   # log Spaces bar frames
-tail -f ~/Library/Logs/WorkspaceTag.log
+defaults write local.spacetag debugLog -bool true   # log Spaces bar frames
+tail -f ~/Library/Logs/SpaceTag.log
 ```

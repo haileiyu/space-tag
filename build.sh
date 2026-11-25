@@ -1,11 +1,11 @@
 #!/bin/bash
-# Build WorkspaceTag.app.   ./build.sh           -> build/WorkspaceTag.app
+# Build SpaceTag.app.   ./build.sh           -> build/SpaceTag.app
 #                           ./build.sh install   -> also copy to ~/Applications and launch
 set -euo pipefail
 cd "$(dirname "$0")"
 
-NAME=WorkspaceTag
-BUNDLE_ID=local.workspacetag
+NAME=SpaceTag
+BUNDLE_ID=local.spacetag
 APP="build/$NAME.app"
 
 rm -rf "$APP"

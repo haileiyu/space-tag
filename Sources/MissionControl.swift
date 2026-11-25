@@ -54,11 +54,19 @@ enum MissionControl {
                 guard let f = frame(b) else { return nil }
                 let title = (attribute(b, kAXDescriptionAttribute) as? String)
                     ?? (attribute(b, kAXTitleAttribute) as? String) ?? ""
-                return MCButton(frame: toCocoa(f), title: title)
+                return MCButton(frame: toCocoa(f), title: cleanTitle(title))
             }
             result.append(MCDisplay(displayID: displayID, buttons: buttons))
         }
         return result.isEmpty ? nil : result
+    }
+
+    /// Button descriptions read "exit to Desktop 1" / "exit to full screen Google Chrome" (English).
+    private static func cleanTitle(_ s: String) -> String {
+        for prefix in ["exit to full screen ", "exit to "] where s.lowercased().hasPrefix(prefix) {
+            return String(s.dropFirst(prefix.count))
+        }
+        return s
     }
 
     // MARK: - AX helpers

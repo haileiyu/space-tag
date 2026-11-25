@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>local.workspacetag</string>
+    <string>local.spacetag</string>
     <key>CFBundleName</key>
-    <string>WorkspaceTag</string>
+    <string>SpaceTag</string>
     <key>CFBundleDisplayName</key>
-    <string>WorkspaceTag</string>
+    <string>SpaceTag</string>
     <key>CFBundleExecutable</key>
-    <string>WorkspaceTag</string>
+    <string>SpaceTag</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
